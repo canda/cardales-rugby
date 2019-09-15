@@ -1,15 +1,17 @@
 import React from 'react';
-import { accounts } from '../../services/firebase';
+import { getAccountsRef } from '../../services/firebase';
 import { Link } from 'gatsby';
 import Layout from '../../components/Layout';
 
 export default class Accounts extends React.Component {
   state = { accounts: [] };
   componentDidMount() {
-    accounts.onSnapshot(accountsSnapshot => {
-      console.log({ accountsSnapshot });
-      this.setState({
-        accounts: accountsSnapshot.docs.map(a => ({ id: a.id, ...a.data() }))
+    getAccountsRef().then(accountsRef => {
+      accountsRef.onSnapshot(accountsSnapshot => {
+        console.log({ accountsSnapshot });
+        this.setState({
+          accounts: accountsSnapshot.docs.map(a => ({ id: a.id, ...a.data() }))
+        });
       });
     });
   }

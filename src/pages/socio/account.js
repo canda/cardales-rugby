@@ -1,7 +1,7 @@
 import React from 'react';
 import qs from 'qs';
 
-import { accounts } from '../../services/firebase';
+import { getAccountsRef } from '../../services/firebase';
 import Layout from '../../components/Layout';
 
 export default class Accounts extends React.Component {
@@ -9,10 +9,12 @@ export default class Accounts extends React.Component {
   componentDidMount() {
     const { location } = this.props;
     const { id } = qs.parse(location.search, { ignoreQueryPrefix: true });
-    accounts.doc(id).onSnapshot(accountSnapshot => {
-      console.log({ accountSnapshot });
-      this.setState({
-        account: accountSnapshot.data()
+    getAccountsRef().then(accountsRef => {
+      accountsRef.doc(id).onSnapshot(accountSnapshot => {
+        console.log({ accountSnapshot });
+        this.setState({
+          account: accountSnapshot.data()
+        });
       });
     });
   }

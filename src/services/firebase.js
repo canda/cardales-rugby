@@ -1,4 +1,5 @@
-import * as firebase from 'firebase';
+// We import and initialize firebase asynchronously to avoid gatsby build errors
+// https://kyleshevlin.com/firebase-and-gatsby-together-at-last
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCSec4xEiawwcV-tINpBLysKAZxOkpK6Kk',
@@ -9,8 +10,22 @@ const firebaseConfig = {
   messagingSenderId: '281044045627',
   appId: '1:281044045627:web:9696f1d087686edb'
 };
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
 
-const firestore = firebase.firestore();
-export const accounts = firestore.collection('accounts');
+let firestoreInstance;
+const getFirestoreInstance = () => {
+  if (firestoreInstance) {
+    return Promise.resolve(firestoreInstance);
+  }
+  const lazyApp = import('firebase/app');
+  const lazyDatabase = import('firebase/firestore');
+
+  return Promise.all([lazyApp, lazyDatabase]).then(([firebase]) => {
+    firebase.initializeApp(firebaseConfig);
+    return firebase.firestore();
+  });
+};
+
+export const getAccountsRef = async () => {
+  const firestore = await getFirestoreInstance();
+  return firestore.collection('accounts');
+};
