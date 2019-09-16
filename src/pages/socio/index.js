@@ -1,8 +1,14 @@
 import React from 'react';
-import { accounts } from '../../services/firebase';
+import Layout from '../../components/Layout';
+import { Link } from 'gatsby';
 
 export default class Index extends React.Component {
   render() {
-    return <h1>Login</h1>;
+    return (
+      <Layout>
+        <h1>Login</h1>
+        <Link to="/socio/accounts">Accounts</Link>
+      </Layout>
+    );
   }
 }

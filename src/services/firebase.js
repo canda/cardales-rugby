@@ -20,7 +20,9 @@ const getFirestoreInstance = () => {
   const lazyDatabase = import('firebase/firestore');
 
   return Promise.all([lazyApp, lazyDatabase]).then(([firebase]) => {
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
     return firebase.firestore();
   });
 };
