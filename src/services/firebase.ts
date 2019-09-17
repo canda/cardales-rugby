@@ -12,7 +12,7 @@ const firebaseConfig = {
 };
 
 let firestoreInstance;
-const getFirestoreInstance = () => {
+const getFirestoreInstance: () => Promise<firebase.firestore.Firestore> = () => {
   if (firestoreInstance) {
     return Promise.resolve(firestoreInstance);
   }

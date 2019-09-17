@@ -22,15 +22,15 @@ export default class Accounts extends React.Component {
         <section className="section">
           <div className="container">
             <div className="content">
-              <h1>Accounts</h1>
+              <h1>Listado de Cuentas</h1>
               <Link className="button is-primary" to="/socio/accounts/add">
                 Crear Cuenta
               </Link>
               <ul>
-                {accounts.map(acc => (
+                {accounts.map(account => (
                   <li>
-                    <Link key={acc.id} to={`/socio/account?id=${acc.id}`}>
-                      {acc.dni}
+                    <Link key={account.id} to={`/socio/account?id=${account.id}`}>
+                      {account.firstname} {account.lastname} - {account.dni}
                     </Link>
                   </li>
                 ))}

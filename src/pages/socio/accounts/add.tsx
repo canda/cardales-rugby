@@ -1,18 +1,29 @@
 import React from 'react';
-import { Link } from 'gatsby';
+import { Link, navigate } from 'gatsby';
 import { getAccountsRef } from '../../../services/firebase';
 import Layout from '../../../components/Layout';
 import AccountForm from '../../../components/AccountForm';
+import { Account } from '../../../types/Account';
+
+const BACK_URL = '/socio/accounts';
 
 export default class Accounts extends React.Component {
-  state = { account: {} };
+  state: { account: Account; loading: Boolean } = { account: {}, loading: false };
 
-  onAccountChange = account => {
+  onAccountChange = (account: Account) => {
     this.setState({ account });
   };
 
   submit = async () => {
+    this.setState({ loading: true });
+
+    const { account } = this.state;
     const accountsRef = await getAccountsRef();
+    await accountsRef.add(account);
+
+    this.setState({ loading: false });
+
+    navigate(BACK_URL);
   };
 
   render() {
@@ -33,7 +44,7 @@ export default class Accounts extends React.Component {
                   </button>
                 </div>
                 <div className="control">
-                  <Link className="button" to="/socio/accounts">
+                  <Link className="button" to={BACK_URL}>
                     Cancelar
                   </Link>
                 </div>
