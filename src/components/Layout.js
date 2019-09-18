@@ -1,10 +1,19 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
+import { withPrefix } from 'gatsby';
+import styled from 'styled-components';
+
 import Footer from './Footer';
 import Navbar from './Navbar';
 import './all.sass';
 import useSiteMetadata from './SiteMetadata';
-import { withPrefix } from 'gatsby';
+
+const Content = styled.div`
+  text-align: center;
+  @media (min-width: 700px) {
+    text-align: left;
+  }
+`;
 
 const TemplateWrapper = ({ children }) => {
   const { title, description } = useSiteMetadata();
@@ -46,7 +55,7 @@ const TemplateWrapper = ({ children }) => {
         <meta property="og:image" content={`${withPrefix('/')}img/og-image.jpg`} />
       </Helmet>
       <Navbar />
-      <div>{children}</div>
+      <Content>{children}</Content>
       <Footer />
     </div>
   );

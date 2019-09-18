@@ -8,12 +8,14 @@ import moment from 'moment';
 import { Account, Movement } from '../types/Account';
 import { getAccountsRef } from '../services/firebase';
 
+const MOBILE_MAX_WIDTH = '700px';
+
 const FormContainer = styled.div`
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   flex-direction: column;
-  @media (min-width: 700px) {
+  @media (min-width: ${MOBILE_MAX_WIDTH}) {
     flex-direction: row;
   }
   margin: 10px 0;
@@ -22,7 +24,7 @@ const FormContainer = styled.div`
 const StyledRadioGroup = styled(RadioGroup)`
   display: flex;
   flex-direction: row;
-  @media (min-width: 700px) {
+  @media (min-width: ${MOBILE_MAX_WIDTH}) {
     flex-direction: column;
   }
 `;
@@ -48,10 +50,19 @@ const emptyMovement: () => Movement = () => ({
 
 const StyledTable = styled.table`
   text-align: left;
+  margin: auto;
+  @media (min-width: ${MOBILE_MAX_WIDTH}) {
+    margin: 0;
+  }
 `;
 
 const StyledCell = styled.td`
   padding-right: 5px;
+`;
+
+const BalanceTotal = styled.span`
+  font-weight: bold;
+  font-size: 22px;
 `;
 
 const getBalanceTotal = (account: Account) =>
@@ -136,6 +147,9 @@ class Balance extends React.Component<
             Cargar Movimiento
           </button>
         </FormContainer>
+        <BalanceTotal>
+          {balanceTotal < 0 ? 'Deuda' : 'A favor'} ${Intl.NumberFormat().format(balanceTotal)}
+        </BalanceTotal>
         <StyledTable className="table">
           <tbody>
             {sortedMovements.map((movement: Movement) => (
