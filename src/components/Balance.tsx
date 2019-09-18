@@ -1,30 +1,82 @@
 import React from 'react';
+import styled from 'styled-components';
 import { Radio, RadioGroup } from 'react-radio-group';
 import DayPickerInput from 'react-day-picker/DayPickerInput';
 import 'react-day-picker/lib/style.css';
+import moment from 'moment';
 
-import { Account } from '../types/Account';
+import { Account, Movement } from '../types/Account';
 import { getAccountsRef } from '../services/firebase';
 
-type Movement = {
-  multiplier: number;
-  value: number;
-  date: number;
-};
+const FormContainer = styled.div`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-direction: column;
+  @media (min-width: 700px) {
+    flex-direction: row;
+  }
+  margin: 10px 0;
+`;
 
-class Balance extends React.Component<{ account: Account }, { newMovement: Movement }> {
-  state = { newMovement: { multiplier: 1, value: 0, date: new Date().valueOf() } };
+const StyledRadioGroup = styled(RadioGroup)`
+  display: flex;
+  flex-direction: row;
+  @media (min-width: 700px) {
+    flex-direction: column;
+  }
+`;
+
+const StyledRadioContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const StyledFieldGroup = styled.div`
+  margin: 0 10px;
+`;
+
+const StyledRadio = styled(Radio)`
+  margin: 0 5px;
+`;
+
+const emptyMovement: () => Movement = () => ({
+  multiplier: 1,
+  value: 0,
+  date: new Date().valueOf()
+});
+
+const StyledTable = styled.table`
+  text-align: left;
+`;
+
+const StyledCell = styled.td`
+  padding-right: 5px;
+`;
+
+const getBalanceTotal = (account: Account) =>
+  account.movements.reduce((sum, movement) => (sum += movement.multiplier * movement.value), 0);
+
+const sortMovements = (account: Account) => account.movements.sort((m1, m2) => m2.date - m1.date);
+
+class Balance extends React.Component<
+  { account: Account },
+  { newMovement: Movement; loading: Boolean }
+> {
+  state = { newMovement: emptyMovement(), loading: false };
   submit = async () => {
     const { account } = this.props;
     const { newMovement } = this.state;
-    console.log({ account, newMovement });
 
     const firebase = await import('firebase/app');
 
     const accountsRef = await getAccountsRef();
-    accountsRef.doc(account.id).update({
+
+    this.setState({ loading: true });
+    await accountsRef.doc(account.id).update({
       movements: firebase.firestore.FieldValue.arrayUnion(newMovement)
     });
+    this.setState({ loading: true, newMovement: emptyMovement() });
   };
   handleDateChange = date => {
     this.setState(({ newMovement }) => ({ newMovement: { ...newMovement, date: date.valueOf() } }));
@@ -40,38 +92,62 @@ class Balance extends React.Component<{ account: Account }, { newMovement: Movem
     this.setState(({ newMovement }) => ({ newMovement: { ...newMovement, [name]: value } }));
   };
   render() {
+    const { account } = this.props;
     const { newMovement } = this.state;
+
+    const sortedMovements = sortMovements(account);
+    const balanceTotal = getBalanceTotal(account);
+
     return (
-      <div>
-        <RadioGroup
-          name="multiplier"
-          selectedValue={newMovement.multiplier}
-          onChange={this.handleRadioChange}
-        >
-          <Radio value={1} />
-          Pago
-          <Radio value={-1} />
-          Deuda
-        </RadioGroup>
-        <div className="field">
-          <label>$</label>
-          <input
-            type="number"
-            name="value"
-            value={newMovement.value}
-            onChange={this.handleInputChange}
-          />
-        </div>
+      <React.Fragment>
+        <FormContainer>
+          <StyledRadioGroup
+            name="multiplier"
+            selectedValue={newMovement.multiplier}
+            onChange={this.handleRadioChange}
+          >
+            <StyledRadioContainer>
+              <StyledRadio value={1} /> Pago
+            </StyledRadioContainer>
+            <StyledRadioContainer>
+              <StyledRadio value={-1} /> Deuda
+            </StyledRadioContainer>
+          </StyledRadioGroup>
+          <StyledFieldGroup>
+            <label>$</label>
+            <input
+              type="number"
+              name="value"
+              value={newMovement.value}
+              onChange={this.handleInputChange}
+            />
+          </StyledFieldGroup>
 
-        <div className="field">
-          <label>Fecha</label>
-          <DayPickerInput value={new Date(newMovement.date)} onDayChange={this.handleDateChange} />
-        </div>
+          <StyledFieldGroup>
+            <DayPickerInput
+              format="LL"
+              formatDate={date => moment(date).format('LL')}
+              value={new Date(newMovement.date)}
+              onDayChange={this.handleDateChange}
+            />
+          </StyledFieldGroup>
 
-        <button onClick={this.submit} className="button">
-          Cargar Movimiento
-        </button>
-      </div>
+          <button onClick={this.submit} className="button">
+            Cargar Movimiento
+          </button>
+        </FormContainer>
+        <StyledTable className="table">
+          <tbody>
+            {sortedMovements.map((movement: Movement) => (
+              <tr key={movement.date}>
+                <StyledCell>{moment(movement.date).format('LL')}</StyledCell>
+                <StyledCell>{movement.multiplier === -1 ? 'Deuda' : 'Pago'}</StyledCell>
+                <StyledCell>${Intl.NumberFormat().format(movement.value)}</StyledCell>
+              </tr>
+            ))}
+          </tbody>
+        </StyledTable>
+      </React.Fragment>
     );
   }
 }

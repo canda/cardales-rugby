@@ -7,7 +7,7 @@ import { Account } from '../../../types/Account';
 
 const BACK_URL = '/socio/accounts';
 
-export default class Accounts extends React.Component {
+export default class AccountsAdd extends React.Component {
   state: { account: Account; loading: Boolean } = { account: {}, loading: false };
 
   onAccountChange = (account: Account) => {

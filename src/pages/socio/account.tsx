@@ -5,7 +5,7 @@ import { getAccountsRef } from '../../services/firebase';
 import Layout from '../../components/Layout';
 import Balance from '../../components/Balance';
 
-export default class Accounts extends React.Component<{ location: Location }> {
+export default class Account extends React.Component<{ location: Location }> {
   state = { account: null, error: null };
   componentDidMount() {
     this.getAccount();
