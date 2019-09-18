@@ -1,6 +1,6 @@
 ---
 templateKey: index-page
-title: Great coffee with a conscience
+title: Cardales Rugby Club
 image: /img/cardales-banner.jpg
 heading: Cardales Rugby Club
 subheading: 'Tu club, tu casa. Vení a jugar con nosotros.'
